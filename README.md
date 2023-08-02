@@ -1,2 +1,0 @@
-# aghandoura.github.io
-blog
