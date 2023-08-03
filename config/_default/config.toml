@@ -17,8 +17,6 @@ buildFuture = false
 
 googleAnalytics = "G-QQTQP7234K"
 
-disqusShortname = "adamghandoura"
-
 [imaging]
   anchor = 'Center'
 
