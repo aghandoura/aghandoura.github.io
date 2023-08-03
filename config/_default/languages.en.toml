@@ -1,7 +1,7 @@
 languageCode = "en"
 languageName = "English"
 weight = 1
-title = "My awsome hugo blog"
+title = "aghandoura.github.com"
 
 [params]
   displayName = "EN"
@@ -22,6 +22,8 @@ title = "My awsome hugo blog"
     { email = "mailto:adam.ghandoura@gmail.com" },
     { twitter = "https://twitter.com/gh_freeman" },
     { instagram = "https://instagram.com/gh_freeman" },
+    { github = "https://github.com/aghandoura" },
+    { github = "https://github.com/ghandoura" },
 #    { link = "https://link-to-some-website.com/" },
 #    { amazon = "https://www.amazon.com/hz/wishlist/ls/wishlist-id" },
 #    { apple = "https://www.apple.com" },
@@ -33,7 +35,6 @@ title = "My awsome hugo blog"
 #    { facebook = "https://facebook.com/username" },
 #    { flickr = "https://www.flickr.com/photos/username/" },
 #    { foursquare = "https://foursquare.com/username" },
-#    { github = "https://github.com/username" },
 #    { gitlab = "https://gitlab.com/username" },
 #    { google = "https://www.google.com/" },
 #    { hashnode = "https://username.hashnode.dev" },

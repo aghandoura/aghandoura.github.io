@@ -24,6 +24,9 @@ highlightCurrentMenuArea = true
 smartTOC = true
 smartTOCHideUnfocusedChildren = true
 
+
+showComments = true
+
 [header]
   layout = "basic" # valid options: basic, fixed, fixed-fill, fixed-fill-blur
 
