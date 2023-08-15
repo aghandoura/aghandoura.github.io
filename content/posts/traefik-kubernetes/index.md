@@ -129,7 +129,7 @@ Verify that traefik has been deployed successfully, the dashboard has been expos
 ---
 ***Note***:
 
-- Make sure to use the right traefik service node port depending on http or https traffic.
+- Make sure to use the right traefik service node port depending on http or https traffic. (see metalLB section below to avoid that)
 
 - Don't forget to add "/" after dashboard in the path.
 
@@ -189,10 +189,61 @@ spec:
         - name: my-website-wordpress
           port: 80
 ```
+### (Optional) Use MetalLB for getting a Loadbalancer IP
+
+You may have noticed that we are using nodeport to access the traefik service and we need to append the port with each domain, this is because we don't have a load balancer ip.
+See the pending in EXTERNAL-IP. this 
+
+```bash
+kubectl get svc
+NAME                   TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE                                                                                                              
+kubernetes             ClusterIP      10.96.0.1        <none>        443/TCP                      3d23h                                                                                                            
+my-website-mariadb     ClusterIP      10.99.218.197    <none>        3306/TCP                     3d22h                                                                                                            
+my-website-wordpress   LoadBalancer   10.100.12.50     <pending>     80:32376/TCP,443:30439/TCP   3d22h                                                                                                            
+traefik                LoadBalancer   10.108.140.180   <pending>     80:32392/TCP,443:30808/TCP   29h      
+```
+
+In minikube this can easily be fixed using MetalLB:
+
+```bash
+minikube addons enable metallb 
+❗  metallb is a 3rd party addon and is not maintained or verified by minikube maintainers, enable at your own risk.                                                                                               
+❗  metallb does not currently have an associated maintainer.                                                                                                                                                      
+    ▪ Using image quay.io/metallb/speaker:v0.9.6                                                                                                                                                                   
+    ▪ Using image quay.io/metallb/controller:v0.9.6                                                                                                                                                                
+🌟  The 'metallb' addon is enabled
+```
+Then we need to configure a range for the Load Balancer IP here we chose (192.168.39.10-20 range):
+
+```bash
+minikube addons configure metallb
+-- Enter Load Balancer Start IP: 192.168.39.10                                                                                                                                                                     
+-- Enter Load Balancer End IP: 192.168.39.20                                                                                                                                                                       
+    ▪ Using image quay.io/metallb/speaker:v0.9.6                                                                                                                                                                   
+    ▪ Using image quay.io/metallb/controller:v0.9.6
+✅  metallb was successfully configured     
+```
+
+Now we can see that Traefik get an IP we can use to access our application:
+
+```bash
+kubectl get svc
+NAME                   TYPE           CLUSTER-IP       EXTERNAL-IP     PORT(S)                      AGE
+kubernetes             ClusterIP      10.96.0.1        <none>          443/TCP                      4d
+my-website-mariadb     ClusterIP      10.99.218.197    <none>          3306/TCP                     3d22h
+my-website-wordpress   LoadBalancer   10.100.12.50     192.168.39.10   80:32376/TCP,443:30439/TCP   3d22h
+traefik                LoadBalancer   10.108.140.180   192.168.39.11   80:32392/TCP,443:30808/TCP   29h
+```
+
+we can now use the service ip instead of the node ip in /etc/hosts: `192.168.39.11 myblog.minikube`
+
+And our blog can now be reached using just the doamin name.
+
+
 
 This is only scratching the surface of what traefik can do. check the [docs](https://doc.traefik.io/traefik/) for more advanced feature.
 
-### Traefik Alternatives
+## Traefik Alternatives
 
 While Traefik is a powerful tool, it's important to explore alternatives that might better suit specific use cases or preferences. Some popular alternatives to Traefik include:
 
