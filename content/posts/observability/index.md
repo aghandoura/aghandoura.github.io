@@ -106,6 +106,8 @@ In essence, observability empowers engineering, DevOps teams, and system adminis
 
 We explore two observability stacks in Kubernetes first ELK and then we incrementally build one using Grafana tools.
 
+**_NOTE:_** Instructions in this section are intended for testing and evalutation only and do not satisfy most of production requirements.
+
 ### Prerequisits
 
 #### Kubernetes cluster
@@ -378,13 +380,59 @@ After login navigate to Observability, Logs and Metrics should be available
 
 ![kibana-observability](gallery/kibana-observability.png)
 
+**_NOTE:_** ELK is a powerhouse with many features, maybe a bit too much for some usecases. as a result it comes with a big performance requirements, had to run it with reduced ram and still had to increase ram for my VMs twice, There is probably a way to optimize it I didn't look into the documentation for that.
+
 #### <span style="color:red"> ELK Helm charts archived </span>
 
 Elastic stack helm charts [github repository](https://github.com/elastic/helm-charts/issues/1731) has been archived. with a recommendation to use Elastic Cloud on Kubernetes (ECK).
 
-### Grafana Loki Prometheus Linkerd Mimir
+### Grafana Loki-stack
 
-TODO...
+Sometimes all you need is aggregated logs and the ability to run some queries to build your dashboard for that Loki-stack gets the job done.
+
+Add grafana helm-charts repo
+
+```bash
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+```
+
+#### Loki stack
+
+You can check Loki-stack default values:
+
+```bash
+ helm show values grafana/loki-stack > values.yaml
+```
+
+We use fluent-bit to collect logs and send them to loki and then display using grafana:
+
+```bash
+helm upgrade --install loki grafana/loki-stack \
+     --set grafana.enabled=true,fluent-bit.enabled=true,promtail.enabled=false -n loki --create-namespace
+```
+
+Expose grafana service as nodeport:
+
+```bash
+kubectl patch svc -n loki loki-grafana --type='json' -p '[{"op":"replace","path":"/spec/type","value":"NodePort"}]'
+kubectl get svc -n loki
+```
+
+Get grafana admin password
+
+```bash
+kubectl get secret --namespace loki loki-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+```
+
+![grafana login](gallery/grafana_login.png)
+
+Loki datasource should already be configured if you enabled grafana when installing loki-stack, if you're using your own grafana deployment make sure to add Loki datasource:
+
+![loki data source](gallery/loki-datasource.png)
+
+Now you can use Log Browser to build grafana panels, or used [LogQL](https://grafana.com/docs/loki/latest/logql/) to do more advanced queries
+![log-browser](gallery/log-browser.png)
 
 ## Conclusion
 
